@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Text, TextInput, TouchableOpacity, StatusBar, StyleSheet, View, ScrollView, Alert, ActivityIndicator, Image } from 'react-native';
-import { useAuth } from '../contexto/AuthContext';
+import { useAuth } from '../contexto/AuthContext'; // ActivityIndicator la ruedita de carga, seAuth usar la función conecta con tu base de datos para iniciar sesión.
 
 export default function LoginScreen({ navigation }) {
-    const [correo, setCorreo] = useState('');
+    const [correo, setCorreo] = useState(''); // guardan lo que usuario ponga
     const [password, setPassword] = useState('');
-    const [cargando, setCargando] = useState(false);
-    const { login } = useAuth();
+    const [cargando, setCargando] = useState(false); // esperando respuesta
+    const { login } = useAuth(); // comunicacion con la BD
 
-    const handleLogin = async () => {
+    const handleLogin = async () => { // boton entrar
         if (!correo || !password) {
             Alert.alert('Error', 'Por favor ingresa correo y contraseña');
             return;
@@ -16,7 +16,7 @@ export default function LoginScreen({ navigation }) {
 
         setCargando(true);
         const result = await login(correo, password, true); 
-        setCargando(false);
+        setCargando(false); // llama la funcion de BD
 
         if (!result.success) {
             Alert.alert('Error', result.error || 'Credenciales incorrectas.');
@@ -47,7 +47,7 @@ export default function LoginScreen({ navigation }) {
                 <TextInput 
                     style={styles.input}
                     keyboardType='email-address'
-                    autoCapitalize="none"
+                    autoCapitalize="none" // Evita que la primera letra del correo se ponga en mayúscula automáticamente
                     value={correo}
                     onChangeText={setCorreo}
                 />

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, ScrollView, Alert } from 'react-native';
+// textInput abre el teclado, 
 import { Feather } from '@expo/vector-icons';
 
 const prioridades = ['Alta', 'Media', 'Baja'];
 
 export default function CrearTareaScreen({ navigation }) {
     const [titulo, setTitulo] = useState('');
+    // useState Es la memoria de tu pantalla.
     const [descripcion, setDescripcion] = useState('');
     const [prioridad, setPrioridad] = useState('Media');
     
@@ -59,6 +61,7 @@ export default function CrearTareaScreen({ navigation }) {
                         textAlignVertical="top"
                         value={descripcion}
                         onChangeText={setDescripcion}
+                        // cuando cambie el text
                     />
 
                     <Text style={styles.label}>Materia</Text>
@@ -96,8 +99,9 @@ export default function CrearTareaScreen({ navigation }) {
                         <Feather name="calendar" size={18} color="#333" style={{ marginRight: 8 }} />
                         <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Fecha de entrega</Text>
                     </View>
-                    
+                
                     <View style={styles.dateRow}>
+                    
                         <TextInput style={styles.dateInput} placeholder="Día" keyboardType="number-pad" maxLength={2} value={dia} onChangeText={setDia} />
                         <TextInput style={styles.dateInput} placeholder="Mes" keyboardType="number-pad" maxLength={2} value={mes} onChangeText={setMes} />
                         <TextInput style={styles.dateInput} placeholder="Año" keyboardType="number-pad" maxLength={4} value={anio} onChangeText={setAnio} />
@@ -111,6 +115,7 @@ export default function CrearTareaScreen({ navigation }) {
             </ScrollView>
         </SafeAreaView>
     );
+    // El usuario escribió todo esto a revisar y a guardar
 }
 
 const styles = StyleSheet.create({

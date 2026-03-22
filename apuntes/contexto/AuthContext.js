@@ -7,15 +7,15 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-
-    // Al abrir la app, revisamos si el usuario ya había iniciado sesión antes
+//Mientras esto sea true pantalla de carga o un spinner en tu aplicación.
+// Al abrir, revisamos si el usuario ya había iniciado sesión antes
     useEffect(() => {
     const checkSession = async () => {
       try {
         const sessionUser = await UserController.getActiveSession();
             if (sessionUser) {
               setUser(sessionUser);
-            }
+            } // Si encuentra un usuario, lo guarda en el estado.
           } catch (error) {
             console.error("Error verificando sesión:", error);
           } finally {

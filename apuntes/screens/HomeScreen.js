@@ -1,16 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import { useAuth } from '../contexto/AuthContext';
+import { Feather } from '@expo/vector-icons'; // librería de íconos
+import { useAuth } from '../contexto/AuthContext';// ¿Quién es el usuario que acaba de iniciar sesión?
 
 export default function HomeScreen({ navigation }) {
-    // Obtenemos al usuario logueado desde el contexto
-    const { user } = useAuth();
+    // Obtenemos al usuario logueado desde el contexto, pantalla principal.
+    const { user } = useAuth();// busca al uruario y y la variable user tiene gusrdados los datos
 
     return (
-        <ScrollView style={styles.container} bounces={false}>
+        <ScrollView style={styles.container} bounces={false}>{/* estetica, no rebote */}
             <StatusBar barStyle="dark-content" backgroundColor="#90CAF9" />
-            
+       
             {/* Cabecera Azul */}
             <View style={styles.header}>
                 <Text style={styles.greetingTitle}>¡Hola, {user?.nombre || 'User'}!</Text>
@@ -20,7 +20,7 @@ export default function HomeScreen({ navigation }) {
             {/* Contenido Principal */}
             <View style={styles.content}>
                 
-                {/* Tarjetas Superiores (Cuadros) */}
+                {/* Tarjetas Superiores (Cuadros), ve a la pantalla de tareas */}
                 <View style={styles.rowCards}>
                     <TouchableOpacity style={styles.squareCard} onPress={() => navigation.navigate('Tareas')}>
                         <View style={[styles.iconContainer, { backgroundColor: '#FFEBEE' }]}>

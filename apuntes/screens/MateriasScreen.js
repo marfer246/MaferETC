@@ -11,19 +11,20 @@ const materiasIniciales = [
 
 export default function MateriasScreen({ navigation }) {
     const [materias, setMaterias] = useState(materiasIniciales);
-
-    const renderItem = ({ item }) => (
+// setMaterias para actualizarla la materia nueva
+    const renderItem = ({ item }) => ( // hacemos las tarjetas
         <TouchableOpacity style={styles.card}>
             <View style={styles.cardLeft}>
                 <View style={styles.iconContainer}>
                     <Ionicons name="triangle" size={36} color={item.color} />
                 </View>
-                
+            
                 <View style={styles.cardInfo}>
                     <Text style={styles.materiaName}>{item.nombre}</Text>
                     <Text style={styles.materiaProf}>{item.profesor}</Text>
                     <Text style={styles.materiaTareas}>
-                        {item.tareas} tarea{item.tareas !== 1 ? 's' : ''}
+                        {item.tareas} tarea{item.tareas !== 1 ? 's' : ''} 
+                    {/* como una bandera */}
                     </Text>
                 </View>
             </View>
@@ -31,7 +32,7 @@ export default function MateriasScreen({ navigation }) {
         </TouchableOpacity>
     );
 
-    return (
+    return ( // 
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
             
@@ -43,7 +44,7 @@ export default function MateriasScreen({ navigation }) {
             </View>
 
             <View style={styles.addButtonContainer}>
-                {/* AQUÍ ESTÁ LA CONEXIÓN AL FORMULARIO */}
+                {/* esta es LA conexion al formulario */}
                 <TouchableOpacity 
                     style={styles.addButton} 
                     onPress={() => navigation.navigate('CrearMateria')}
@@ -53,7 +54,7 @@ export default function MateriasScreen({ navigation }) {
                 </TouchableOpacity>
             </View>
 
-            <FlatList
+            <FlatList //  usa esta lista que tengo en mi memoria
                 data={materias}
                 keyExtractor={item => item.id}
                 renderItem={renderItem}

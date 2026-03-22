@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; // para guardar datos que solo le importan a esta pantalla mientras el usuario escribe
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, ScrollView, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+
 
 const coloresDisponibles = [
     { id: '1', hex: '#90CAF9', nombre: 'Azul' },
@@ -25,12 +26,15 @@ export default function CrearMateriaScreen({ navigation }) {
         Alert.alert('Éxito', 'Materia creada correctamente.', [
             { text: 'OK', onPress: () => navigation.goBack() }
         ]);
+        // .goBack() quitar la carta de arriba y tirarla.(pila)
     };
 
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
             
+
+
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Feather name="arrow-left" size={24} color="#333" />
@@ -63,9 +67,9 @@ export default function CrearMateriaScreen({ navigation }) {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Personalización</Text>
                     <Text style={styles.label}>Color representativo</Text>
-                    
+                
                     <View style={styles.colorGrid}>
-                        {coloresDisponibles.map((color) => (
+                        {coloresDisponibles.map((color) => ( // coloresDisponibles y dibuja un botón por cada uno.
                             <TouchableOpacity 
                                 key={color.id} 
                                 style={[
