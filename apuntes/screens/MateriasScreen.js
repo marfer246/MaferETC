@@ -1,41 +1,93 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, SafeAreaView, StatusBar } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, SafeAreaView, StatusBar, Alert, ActivityIndicator } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
-
-const materiasIniciales = [
-    { id: '1', nombre: 'Matemáticas', profesor: 'Dra. Adela', tareas: 1, color: '#4FC3F7' }, 
-    { id: '2', nombre: 'Programación', profesor: 'Dr. Nelson', tareas: 1, color: '#81C784' }, 
-    { id: '3', nombre: 'Base de datos', profesor: 'Dra. Argelia', tareas: 1, color: '#FFF59D' }, 
-    { id: '4', nombre: 'Desarrollo Humano', profesor: 'Prof. Chavero', tareas: 1, color: '#E57373' }, 
-];
+import MateriaController from '../controllers/MateriaController';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function MateriasScreen({ navigation }) {
-    const [materias, setMaterias] = useState(materiasIniciales);
-// setMaterias para actualizarla la materia nueva
-    const renderItem = ({ item }) => ( // hacemos las tarjetas
-        <TouchableOpacity style={styles.card}>
+    const [materias, setMaterias] = useState([]);
+    const [cargando, setCargando] = useState(true);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            cargarMaterias();
+        }, [])
+    );
+
+    const cargarMaterias = async () => {
+        setCargando(true);
+        const resultado = await MateriaController.listar();
+        if (resultado.success) {
+            setMaterias(resultado.materias);
+        } else {
+            Alert.alert('Error', 'No se pudieron cargar las materias.');
+        }
+        setCargando(false);
+    };
+
+    const handleEliminarMateria = (id, nombre) => {
+        Alert.alert(
+            'Eliminar materia',
+            `¿Estás seguro de que deseas eliminar "${nombre}"?`,
+            [
+                { text: 'Cancelar', style: 'cancel' },
+                {
+                    text: 'Eliminar',
+                    style: 'destructive',
+                    onPress: async () => {
+                        const resultado = await MateriaController.eliminar(id);
+                        if (resultado.success) {
+                            Alert.alert('Éxito', 'Materia eliminada correctamente.');
+                            cargarMaterias();
+                        } else {
+                            Alert.alert('Error', resultado.message || 'Error al eliminar.');
+                        }
+                    },
+                },
+            ]
+        );
+    };
+
+    const renderItem = ({ item }) => (
+        <TouchableOpacity
+            style={styles.card}
+            onLongPress={() => navigation.navigate('EditarMateria', { materia: item })}
+            onPress={() => navigation.navigate('Tareas')}
+        >
             <View style={styles.cardLeft}>
-                <View style={styles.iconContainer}>
-                    <Ionicons name="triangle" size={36} color={item.color} />
+                <View style={[styles.iconContainer, { backgroundColor: item.color }]}>
+                    <Ionicons name="triangle" size={36} color="white" />
                 </View>
-            
+
                 <View style={styles.cardInfo}>
                     <Text style={styles.materiaName}>{item.nombre}</Text>
                     <Text style={styles.materiaProf}>{item.profesor}</Text>
-                    <Text style={styles.materiaTareas}>
-                        {item.tareas} tarea{item.tareas !== 1 ? 's' : ''} 
-                    {/* como una bandera */}
-                    </Text>
                 </View>
             </View>
-            <Feather name="arrow-right" size={24} color="#D3D3D3" />
+            <TouchableOpacity
+                style={styles.deleteIconButton}
+                onPress={() => handleEliminarMateria(item.id, item.nombre)}
+            >
+                <Feather name="trash-2" size={18} color="#FF5252" />
+            </TouchableOpacity>
         </TouchableOpacity>
     );
 
-    return ( // 
+    if (cargando) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="#90CAF9" />
+                    <Text style={styles.loadingText}>Cargando materias...</Text>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-            
+
             <View style={styles.header}>
                 <View style={styles.headerTitles}>
                     <Text style={styles.headerTitle}>Mis Materias</Text>
@@ -44,9 +96,8 @@ export default function MateriasScreen({ navigation }) {
             </View>
 
             <View style={styles.addButtonContainer}>
-                {/* esta es LA conexion al formulario */}
-                <TouchableOpacity 
-                    style={styles.addButton} 
+                <TouchableOpacity
+                    style={styles.addButton}
                     onPress={() => navigation.navigate('CrearMateria')}
                 >
                     <Text style={styles.addButtonText}>Agregar Materia</Text>
@@ -54,13 +105,20 @@ export default function MateriasScreen({ navigation }) {
                 </TouchableOpacity>
             </View>
 
-            <FlatList //  usa esta lista que tengo en mi memoria
-                data={materias}
-                keyExtractor={item => item.id}
-                renderItem={renderItem}
-                contentContainerStyle={styles.listContainer}
-                showsVerticalScrollIndicator={false}
-            />
+            {materias.length > 0 ? (
+                <FlatList
+                    data={materias}
+                    keyExtractor={item => item.id.toString()}
+                    renderItem={renderItem}
+                    contentContainerStyle={styles.listContainer}
+                    showsVerticalScrollIndicator={false}
+                />
+            ) : (
+                <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>No tienes materias aún</Text>
+                    <Text style={styles.emptySubtext}>Crea una nueva materia para comenzar</Text>
+                </View>
+            )}
         </SafeAreaView>
     );
 }
@@ -77,10 +135,15 @@ const styles = StyleSheet.create({
     addIcon: { marginTop: 2 },
     listContainer: { paddingHorizontal: 25, paddingBottom: 20 },
     card: { flexDirection: 'row', backgroundColor: '#FFFFFF', borderRadius: 20, paddingVertical: 15, paddingHorizontal: 20, marginBottom: 15, alignItems: 'center', justifyContent: 'space-between', borderColor: '#E0F7FA', borderWidth: 1, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5 },
-    cardLeft: { flexDirection: 'row', alignItems: 'center' },
-    iconContainer: { width: 45, height: 45, justifyContent: 'center', alignItems: 'center', marginRight: 15 },
-    cardInfo: { justifyContent: 'center' },
+    cardLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+    iconContainer: { width: 45, height: 45, justifyContent: 'center', alignItems: 'center', marginRight: 15, borderRadius: 10 },
+    cardInfo: { justifyContent: 'center', flex: 1 },
     materiaName: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 2 },
     materiaProf: { fontSize: 13, color: '#666', marginBottom: 2 },
-    materiaTareas: { fontSize: 12, color: '#999' }
+    deleteIconButton: { padding: 10 },
+    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    loadingText: { fontSize: 16, color: '#666', marginTop: 10 },
+    emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 },
+    emptyText: { fontSize: 18, fontWeight: 'bold', color: '#333', marginBottom: 5 },
+    emptySubtext: { fontSize: 14, color: '#666' },
 });

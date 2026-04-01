@@ -11,6 +11,7 @@ import { AuthProvider, useAuth } from './contexto/AuthContext';
 // Pantallas Públicas (Sin iniciar sesión)
 import LoginScreen from './screens/LoginScreen';
 import RegistroScreen from './screens/RegistroScreen';
+import RecuperarContrasenaScreen from './screens/RecuperarContrasenaScreen';
 
 // Pantallas Privadas (Pestañas del menú inferior)
 import HomeScreen from './screens/HomeScreen';
@@ -21,6 +22,8 @@ import PerfilScreen from './screens/PerfilScreen';
 // Pantallas Privadas (Formularios adicionales)
 import CrearMateriaScreen from './screens/CrearMateriaScreen';
 import CrearTareaScreen from './screens/CrearTareaScreen';
+import EditarMateriaScreen from './screens/EditarMateriaScreen';
+import EditarTareaScreen from './screens/EditarTareaScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -87,12 +90,15 @@ const AppNavigator = () => {
           {/* Pantallas adicionales que flotan por encima del menú */}
           <Stack.Screen name="CrearMateria" component={CrearMateriaScreen} />
           <Stack.Screen name="CrearTarea" component={CrearTareaScreen} />
+          <Stack.Screen name="EditarMateria" component={EditarMateriaScreen} />
+          <Stack.Screen name="EditarTarea" component={EditarTareaScreen} />
         </Stack.Group>
       ) : (
         // === RUTAS PÚBLICAS (Usuario NO Logueado) ===
         <Stack.Group>
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Registro" component={RegistroScreen} />
+          <Stack.Screen name="RecuperarContrasena" component={RecuperarContrasenaScreen} />
         </Stack.Group>
       )}
     </Stack.Navigator>

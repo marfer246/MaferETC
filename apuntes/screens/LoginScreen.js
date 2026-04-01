@@ -80,7 +80,7 @@ export default function LoginScreen({ navigation }) {
                         </TouchableOpacity>
                     </View>
                     
-                    <TouchableOpacity style={{ marginTop: 15 }}>
+                    <TouchableOpacity style={{ marginTop: 15 }} onPress={() => navigation.navigate('RecuperarContrasena')}>
                         <Text style={styles.textLink}>¿Olvidaste tu contraseña? Recuperar contraseña.</Text>
                     </TouchableOpacity>
                 </View>

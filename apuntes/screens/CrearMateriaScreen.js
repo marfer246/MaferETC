@@ -1,7 +1,7 @@
 import React, { useState } from 'react'; // para guardar datos que solo le importan a esta pantalla mientras el usuario escribe
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, ScrollView, Alert } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { Feather, Fontisto } from '@expo/vector-icons';
+import MateriaController from '../controllers/MateriaController';
 
 const coloresDisponibles = [
     { id: '1', hex: '#90CAF9', nombre: 'Azul' },
@@ -16,25 +16,48 @@ export default function CrearMateriaScreen({ navigation }) {
     const [nombre, setNombre] = useState('');
     const [profesor, setProfesor] = useState('');
     const [colorSeleccionado, setColorSeleccionado] = useState(coloresDisponibles[0].hex);
+    const [cargando, setCargando] = useState(false);
 
-    const handleCrearMateria = () => {
+    const handleCrearMateria = async () => {
+        // Validaciones
         if (!nombre.trim()) {
-            Alert.alert('Validación', 'El nombre de la materia es obligatorio.');
+            Alert.alert('Error', 'Por favor ingresa el nombre de la materia.');
             return;
         }
-        console.log({ nombre, profesor, colorSeleccionado });
-        Alert.alert('Éxito', 'Materia creada correctamente.', [
-            { text: 'OK', onPress: () => navigation.goBack() }
-        ]);
-        // .goBack() quitar la carta de arriba y tirarla.(pila)
+
+        if (!profesor.trim()) {
+            Alert.alert('Error', 'Por favor ingresa el nombre del profesor/a.');
+            return;
+        }
+
+        if (nombre.trim().length < 2) {
+            Alert.alert('Error', 'El nombre de la materia debe tener al menos 2 caracteres.');
+            return;
+        }
+
+        if (profesor.trim().length < 2) {
+            Alert.alert('Error', 'El nombre del profesor debe tener al menos 2 caracteres.');
+            return;
+        }
+
+        setCargando(true);
+        const resultado = await MateriaController.crear(nombre, profesor, colorSeleccionado);
+        setCargando(false);
+
+        if (resultado.success) {
+            Alert.alert('Éxito', 'Materia creada correctamente.', [
+                { text: 'OK', onPress: () => navigation.goBack() }
+            ]);
+        } else {
+            Alert.alert('Error', resultado.message || 'Error al crear la materia.');
+        }
     };
 
+    // EL ERROR ESTABA AQUÍ: Había una llave '}' extra antes del return. Ya fue eliminada.
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
             
-
-
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Feather name="arrow-left" size={24} color="#333" />
@@ -47,20 +70,22 @@ export default function CrearMateriaScreen({ navigation }) {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Información de la Materia</Text>
                     
-                    <Text style={styles.label}>Nombre de la materia</Text>
+                    <Text style={styles.label}>Nombre de la materia *</Text>
                     <TextInput 
                         style={styles.input}
-                        placeholder="Ej: Química"
+                        placeholder="Ej: Química, Matemáticas"
                         value={nombre}
                         onChangeText={setNombre}
+                        editable={!cargando}
                     />
 
-                    <Text style={styles.label}>Profesor</Text>
+                    <Text style={styles.label}>Profesor/a *</Text>
                     <TextInput 
                         style={styles.input}
                         placeholder="Nombre del profesor..."
                         value={profesor}
                         onChangeText={setProfesor}
+                        editable={!cargando}
                     />
                 </View>
 
@@ -80,16 +105,26 @@ export default function CrearMateriaScreen({ navigation }) {
                                 onPress={() => setColorSeleccionado(color.hex)}
                             >
                                 {colorSeleccionado === color.hex && (
-                                    <Feather name="check" size={20} color="#FFF" />
+                                    <Fontisto name="check" size={20} color="#FFF" />
                                 )}
                             </TouchableOpacity>
                         ))}
                     </View>
                 </View>
 
-                <TouchableOpacity style={styles.submitButton} onPress={handleCrearMateria}>
-                    <Text style={styles.submitButtonText}>Añadir</Text>
+                <TouchableOpacity 
+                    style={[styles.submitButton, cargando && styles.submitButtonDisabled]} 
+                    onPress={handleCrearMateria}
+                    disabled={cargando}
+                >
+                    {cargando ? (
+                        <ActivityIndicator color="#fff" />
+                    ) : (
+                        <Text style={styles.submitButtonText}>Crear Materia</Text>
+                    )}
                 </TouchableOpacity>
+
+                <Text style={styles.helpText}>* Campos obligatorios</Text>
             </ScrollView>
         </SafeAreaView>
     );
@@ -108,6 +143,8 @@ const styles = StyleSheet.create({
     colorGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginTop: 10 },
     colorOption: { width: 50, height: 50, borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginBottom: 15 },
     colorOptionSelected: { borderWidth: 3, borderColor: '#333' },
-    submitButton: { backgroundColor: '#90CAF9', height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
-    submitButtonText: { color: 'white', fontSize: 16, fontWeight: 'bold' }
+    submitButton: { backgroundColor: '#90CAF9', height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginTop: 10, marginBottom: 10 },
+    submitButtonDisabled: { opacity: 0.6 },
+    submitButtonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
+    helpText: { fontSize: 12, color: '#999', textAlign: 'center', marginTop: 10 },
 });

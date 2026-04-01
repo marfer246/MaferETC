@@ -2,13 +2,16 @@ import { apiClient } from '../api/apiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class UserController {
-    async registro(nombre, correo, password) {
+    async register(nombre, correo, password) {
         try {
+            console.log('Register request', { nombre, correo });
             const response = await apiClient.post('/registro', {
                 nombre,
                 correo,
                 password,
             });
+
+            console.log('Register response', response.data);
 
             return {
                 success: true,
@@ -16,6 +19,7 @@ class UserController {
                 usuario: response.data.usuario,
             };
         } catch (error) {
+            console.error('Register error', error.response?.data || error.message || error);
             return {
                 success: false,
                 message: error.response?.data?.message || 'Error en el registro',
@@ -82,13 +86,32 @@ class UserController {
             }
 
             // Verificar sesión en el servidor
-            const response = await apiClient.get('/sesion-activa');
+            const response = await apiClient.get('/user');
             return response.data.usuario;
         } catch (error) {
             // Token inválido o expirado
             await AsyncStorage.removeItem('authToken');
             await AsyncStorage.removeItem('usuario');
             return null;
+        }
+    }
+
+    async resetPassword(correo, password) {
+        try {
+            const response = await apiClient.post('/recuperar-contrasena', {
+                correo,
+                password,
+            });
+
+            return {
+                success: true,
+                message: response.data.message,
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Error al recuperar la contraseña',
+            };
         }
     }
 }

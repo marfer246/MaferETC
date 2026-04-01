@@ -29,14 +29,17 @@ export const AuthProvider = ({ children }) => {
     const login = async (correo, password, recordar) => {
         const result = await UserController.login(correo, password, recordar);
         if (result.success) {
-            setUser(result.user); 
+            setUser(result.usuario);
         }
         return result;
     };
 
     // Función para registrar
     const register = async (nombre, correo, password) => {
-        return await UserController.register(nombre, correo, password);
+        const result = await UserController.register(nombre, correo, password);
+        // No logueamos automáticamente en registro. Dejamos que el usuario inicie sesión.
+        // Esto evita navegar a Login cuando ya se pasó al flujo privado.
+        return result;
     };
 
     // Función para cerrar sesión

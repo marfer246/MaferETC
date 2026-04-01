@@ -13,6 +13,11 @@ class Usuario extends Authenticatable
     protected $fillable = ['nombre', 'correo', 'password_hash'];
     protected $hidden = ['password_hash'];
 
+    public function getAuthPassword()
+    {
+        return $this->password_hash;
+    }
+
     public function materias()
     {
         return $this->hasMany(Materia::class);

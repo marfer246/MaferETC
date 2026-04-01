@@ -1,24 +1,27 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Api\MateriaController;
-use App\Http\Controllers\Api\TareaController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\MateriasController;
+use App\Http\Controllers\Api\TareasController;
 
-// Rutas públicas
+// Rutas públicas (sin autenticación)
 Route::post('/registro', [AuthController::class, 'registro']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/recuperar-contrasena', [AuthController::class, 'resetPassword']);
 
-// Rutas protegidas (requieren token)
+// Rutas protegidas (requieren token Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
     // Autenticación
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/sesion-activa', [AuthController::class, 'getActiveSession']);
+    Route::get('/user', [AuthController::class, 'getActiveSession']);
 
     // Materias
-    Route::apiResource('materias', MateriaController::class);
+    Route::apiResource('materias', MateriasController::class);
 
     // Tareas
-    Route::apiResource('tareas', TareaController::class);
+    Route::apiResource('tareas', TareasController::class);
+    Route::get('/materias/{materiaId}/tareas', [TareasController::class, 'porMateria']);
 });
+
+

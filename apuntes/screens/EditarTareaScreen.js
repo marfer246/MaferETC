@@ -1,22 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, ScrollView, Alert, FlatList, Modal, ActivityIndicator } from 'react-native';
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import {
+    View,
+    Text,
+    StyleSheet,
+    ScrollView,
+    TextInput,
+    TouchableOpacity,
+    Alert,
+    ActivityIndicator,
+    StatusBar,
+    FlatList,
+    Modal,
+} from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import TareaController from '../controllers/TareaController';
 import MateriaController from '../controllers/MateriaController';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const prioridades = ['Alta', 'Media', 'Baja'];
 
-export default function CrearTareaScreen({ navigation }) {
-    const [titulo, setTitulo] = useState('');
-    const [descripcion, setDescripcion] = useState('');
-    const [prioridad, setPrioridad] = useState('Media');
-    const [fecha, setFecha] = useState('');
-    const [materias, setMaterias] = useState([]);
-    const [materiaSeleccionada, setMateriaSeleccionada] = useState(null);
-    const [materiasModal, setMateriasModal] = useState(false);
+export default function EditarTareaScreen({ navigation, route }) {
+    const { tarea } = route.params;
+    const [titulo, setTitulo] = useState(tarea.titulo);
+    const [descripcion, setDescripcion] = useState(tarea.descripcion || '');
+    const [prioridad, setPrioridad] = useState(tarea.prioridad);
+    const [fecha, setFecha] = useState(tarea.fecha);
+    const [completada, setCompletada] = useState(tarea.completada || false);
     const [cargando, setCargando] = useState(false);
-    const [materiasCargando, setMateriasCargando] = useState(true);
+    const [eliminando, setEliminando] = useState(false);
+    const [materias, setMaterias] = useState([]);
+    const [materiasModal, setMateriasModal] = useState(false);
+    const [materiaSeleccionada, setMateriaSeleccionada] = useState(tarea.materia_id);
+    const [materiaCargando, setMateriaCargando] = useState(true);
 
     useEffect(() => {
         cargarMaterias();
@@ -24,110 +38,120 @@ export default function CrearTareaScreen({ navigation }) {
 
     const cargarMaterias = async () => {
         const resultado = await MateriaController.listar();
-        if (resultado.success && resultado.materias.length > 0) {
+        if (resultado.success) {
             setMaterias(resultado.materias);
-            setMateriaSeleccionada(resultado.materias[0].id);
         }
-        setMateriasCargando(false);
+        setMateriaCargando(false);
     };
 
-    const handleCrearTarea = async () => {
-        // Validaciones
+    const handleActualizarTarea = async () => {
         if (!titulo.trim()) {
             Alert.alert('Error', 'Por favor ingresa un título para la tarea.');
             return;
         }
 
         if (!fecha.trim()) {
-            Alert.alert('Error', 'Por favor ingresa una fecha en formato YYYY-MM-DD (ej: 2026-03-31).');
-            return;
-        }
-
-        // Validar formato de fecha
-        const formatoFecha = /^\d{4}-\d{2}-\d{2}$/;
-        if (!formatoFecha.test(fecha)) {
-            Alert.alert('Error', 'La fecha debe estar en formato YYYY-MM-DD (ej: 2026-03-31).');
-            return;
-        }
-
-        if (!materiaSeleccionada) {
-            Alert.alert('Error', 'Por favor selecciona una materia.');
+            Alert.alert('Error', 'Por favor ingresa una fecha para la tarea.');
             return;
         }
 
         setCargando(true);
-        const resultado = await TareaController.crear(titulo, descripcion, prioridad, fecha, materiaSeleccionada);
+        const resultado = await TareaController.actualizar(
+            tarea.id,
+            titulo,
+            descripcion,
+            prioridad,
+            fecha,
+            completada
+        );
         setCargando(false);
 
         if (resultado.success) {
-            Alert.alert('Éxito', 'Tarea creada correctamente.', [
-                { text: 'OK', onPress: () => navigation.goBack() }
-            ]);
+            Alert.alert('Éxito', 'Tarea actualizada correctamente.');
+            navigation.goBack();
         } else {
-            Alert.alert('Error', resultado.message || 'Error al crear la tarea.');
+            Alert.alert('Error', resultado.message || 'Error al actualizar la tarea.');
         }
+    };
+
+    const handleEliminarTarea = () => {
+        Alert.alert(
+            'Eliminar tarea',
+            '¿Estás seguro de que deseas eliminar esta tarea? Esta acción no se puede deshacer.',
+            [
+                { text: 'Cancelar', style: 'cancel' },
+                {
+                    text: 'Eliminar',
+                    style: 'destructive',
+                    onPress: async () => {
+                        setEliminando(true);
+                        const resultado = await TareaController.eliminar(tarea.id);
+                        setEliminando(false);
+
+                        if (resultado.success) {
+                            Alert.alert('Éxito', 'Tarea eliminada correctamente.');
+                            navigation.navigate('Tareas');
+                        } else {
+                            Alert.alert('Error', resultado.message || 'Error al eliminar la tarea.');
+                        }
+                    },
+                },
+            ]
+        );
     };
 
     const materiaNombre = materias.find(m => m.id === materiaSeleccionada)?.nombre || 'Selecciona una materia';
 
     return (
-        <SafeAreaView style={styles.container}>
+        <ScrollView style={styles.container} bounces={false}>
             <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Feather name="arrow-left" size={24} color="#333" />
+                    <Text style={styles.backButtonText}>← Atrás</Text>
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Nueva Tarea</Text>
-                <View style={{ width: 24 }} />
+                <Text style={styles.headerTitle}>Editar Tarea</Text>
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
-                {/* Sección 1: Información */}
+            <View style={styles.scrollContent}>
+                {/* Título */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Información de la tarea</Text>
-
-                    <Text style={styles.label}>Título *</Text>
+                    <Text style={styles.sectionTitle}>Información General</Text>
+                    <Text style={styles.label}>Título</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Ej: Resolver ejercicios de cálculo"
+                        placeholder="Título de la tarea"
                         value={titulo}
                         onChangeText={setTitulo}
-                        editable={!cargando}
                     />
 
                     <Text style={styles.label}>Descripción</Text>
                     <TextInput
-                        style={[styles.input, { height: 100, borderRadius: 15, paddingTop: 10 }]}
-                        placeholder="Describe los detalles de la tarea..."
-                        multiline
-                        textAlignVertical="top"
+                        style={[styles.input, styles.textArea]}
+                        placeholder="Descripción (opcional)"
                         value={descripcion}
                         onChangeText={setDescripcion}
-                        editable={!cargando}
+                        multiline
+                        numberOfLines={4}
                     />
-
-                    <Text style={styles.label}>Materia *</Text>
-                    {materiasCargando ? (
-                        <View style={[styles.pickerSimulado, { justifyContent: 'center' }]}>
-                            <ActivityIndicator color="#666" size="small" />
-                            <Text style={{ color: '#888', marginLeft: 10 }}>Cargando materias...</Text>
-                        </View>
-                    ) : (
-                        <TouchableOpacity
-                            style={styles.pickerSimulado}
-                            onPress={() => setMateriasModal(true)}
-                        >
-                            <Text style={{ color: '#333', fontSize: 14 }}>{materiaNombre}</Text>
-                            <Feather name="chevron-down" size={20} color="#888" />
-                        </TouchableOpacity>
-                    )}
                 </View>
 
-                {/* Sección 2: Prioridad */}
+                {/* Materia */}
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Prioridad</Text>
+                    <Text style={styles.sectionTitle}>Materia</Text>
+                    <TouchableOpacity
+                        style={styles.input}
+                        onPress={() => setMateriasModal(true)}
+                    >
+                        <Text style={{ color: '#333', fontSize: 14 }}>{materiaNombre}</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* Prioridad y Fecha */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Detalles</Text>
+
+                    <Text style={styles.label}>Prioridad</Text>
                     <View style={styles.priorityContainer}>
                         {prioridades.map((p) => (
                             <TouchableOpacity
@@ -135,49 +159,65 @@ export default function CrearTareaScreen({ navigation }) {
                                 style={[
                                     styles.priorityButton,
                                     prioridad === p && styles.priorityButtonActive,
-                                    prioridad === p && p === 'Alta' && { backgroundColor: '#FFCDD2', borderColor: '#EF5350' },
-                                    prioridad === p && p === 'Media' && { backgroundColor: '#FFF9C4', borderColor: '#FDD835' },
-                                    prioridad === p && p === 'Baja' && { backgroundColor: '#C8E6C9', borderColor: '#66BB6A' },
                                 ]}
                                 onPress={() => setPrioridad(p)}
                             >
-                                <Text style={[styles.priorityText, prioridad === p && styles.priorityTextActive]}>{p}</Text>
+                                <Text style={[styles.priorityText, prioridad === p && styles.priorityTextActive]}>
+                                    {p}
+                                </Text>
                             </TouchableOpacity>
                         ))}
                     </View>
-                </View>
 
-                {/* Sección 3: Fecha */}
-                <View style={styles.section}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-                        <Feather name="calendar" size={18} color="#333" style={{ marginRight: 8 }} />
-                        <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Fecha de entrega</Text>
-                    </View>
-
-                    <Text style={styles.label}>Fecha (YYYY-MM-DD) *</Text>
+                    <Text style={styles.label}>Fecha (YYYY-MM-DD)</Text>
                     <TextInput
                         style={styles.input}
                         placeholder="2026-03-31"
                         value={fecha}
                         onChangeText={setFecha}
-                        editable={!cargando}
                     />
                 </View>
 
+                {/* Estado */}
+                <View style={styles.section}>
+                    <View style={styles.completadaRow}>
+                        <Text style={styles.sectionTitle}>Marcar como completada</Text>
+                        <TouchableOpacity
+                            onPress={() => setCompletada(!completada)}
+                            style={[styles.checkbox, completada && styles.checkboxActive]}
+                        >
+                            {completada && (
+                                <MaterialCommunityIcons name="check" size={20} color="white" />
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                {/* Botones */}
                 <TouchableOpacity
-                    style={[styles.submitButton, cargando && styles.submitButtonDisabled]}
-                    onPress={handleCrearTarea}
+                    style={styles.submitButton}
+                    onPress={handleActualizarTarea}
                     disabled={cargando}
                 >
                     {cargando ? (
                         <ActivityIndicator color="#fff" />
                     ) : (
-                        <Text style={styles.submitButtonText}>Crear Tarea</Text>
+                        <Text style={styles.submitButtonText}>Guardar Cambios</Text>
                     )}
                 </TouchableOpacity>
 
-                <Text style={styles.helpText}>* Campos obligatorios</Text>
-            </ScrollView>
+                <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={handleEliminarTarea}
+                    disabled={eliminando}
+                >
+                    {eliminando ? (
+                        <ActivityIndicator color="#fff" />
+                    ) : (
+                        <Text style={styles.deleteButtonText}>Eliminar Tarea</Text>
+                    )}
+                </TouchableOpacity>
+            </View>
 
             {/* Modal de materias */}
             <Modal
@@ -225,7 +265,7 @@ export default function CrearTareaScreen({ navigation }) {
                     </View>
                 </View>
             </Modal>
-        </SafeAreaView>
+        </ScrollView>
     );
 }
 
@@ -233,22 +273,26 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#FFFFFF' },
     header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 15, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
     backButton: { padding: 5 },
-    headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#333' },
+    backButtonText: { fontSize: 16, color: '#1976D2', fontWeight: 'bold' },
+    headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#333', flex: 1, textAlign: 'center' },
     scrollContent: { padding: 20 },
-    section: { backgroundColor: '#FFFFFF', borderRadius: 15, padding: 20, marginBottom: 20, borderWidth: 1, borderColor: '#E0E0E0' },
+    section: { backgroundColor: '#F0F8FF', borderRadius: 15, padding: 20, marginBottom: 20, borderWidth: 1, borderColor: '#E3F2FD' },
     sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 15 },
     label: { fontSize: 12, color: '#666', marginBottom: 5, marginLeft: 5 },
-    input: { backgroundColor: '#FAFAFA', borderWidth: 1, borderColor: '#EEEEEE', borderRadius: 25, height: 45, paddingHorizontal: 15, marginBottom: 15, fontSize: 14 },
-    pickerSimulado: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FAFAFA', borderWidth: 1, borderColor: '#EEEEEE', borderRadius: 25, height: 45, paddingHorizontal: 15 },
-    priorityContainer: { flexDirection: 'row', justifyContent: 'space-between' },
+    input: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 25, height: 45, paddingHorizontal: 15, marginBottom: 15, fontSize: 14, justifyContent: 'center' },
+    textArea: { height: 100, paddingVertical: 10, textAlignVertical: 'top' },
+    priorityContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
     priorityButton: { flex: 1, height: 40, borderRadius: 20, backgroundColor: '#F5F5F5', borderWidth: 1, borderColor: '#E0E0E0', justifyContent: 'center', alignItems: 'center', marginHorizontal: 4 },
-    priorityButtonActive: { borderWidth: 2 },
+    priorityButtonActive: { borderWidth: 2, borderColor: '#0288D1' },
     priorityText: { fontSize: 13, color: '#666', fontWeight: '500' },
-    priorityTextActive: { color: '#333', fontWeight: 'bold' },
-    submitButton: { backgroundColor: '#4FC3F7', height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginTop: 10, marginBottom: 10 },
-    submitButtonDisabled: { opacity: 0.6 },
+    priorityTextActive: { color: '#0288D1', fontWeight: 'bold' },
+    completadaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    checkbox: { width: 30, height: 30, borderRadius: 8, borderWidth: 2, borderColor: '#E0E0E0', justifyContent: 'center', alignItems: 'center' },
+    checkboxActive: { backgroundColor: '#4CAF50', borderColor: '#4CAF50' },
+    submitButton: { backgroundColor: '#4CAF50', height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginTop: 10, marginBottom: 10 },
     submitButtonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
-    helpText: { fontSize: 12, color: '#999', textAlign: 'center', marginTop: 10, marginBottom: 30 },
+    deleteButton: { backgroundColor: '#FF5252', height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginBottom: 30 },
+    deleteButtonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
     modalContainer: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'flex-end' },
     modalContent: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 20, maxHeight: '80%' },
     modalTitle: { fontSize: 20, fontWeight: 'bold', color: '#333', textAlign: 'center', paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },

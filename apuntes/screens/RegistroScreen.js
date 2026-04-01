@@ -30,10 +30,10 @@ export default function RegistroScreen({ navigation }) {
             Alert.alert(
                 '¡Registro Exitoso!', 
                 'Tu cuenta ha sido creada correctamente. Ahora puedes iniciar sesión.',
-                [{ text: 'Ir al Login', onPress: () => navigation.navigate('Login') }]
+                [{ text: 'Ir al Login', onPress: () => navigation.navigate('LoginScreen') }]
             );
         } else {
-            Alert.alert('Error', result.error || 'Hubo un problema al registrar la cuenta.');
+            Alert.alert('Error', result.message || 'Hubo un problema al registrar la cuenta.');
         }
     };
 
@@ -104,7 +104,7 @@ export default function RegistroScreen({ navigation }) {
                 <View style={styles.linksContainer}>
                     <View style={styles.rowLink}>
                         <Text style={styles.textNormal}>¿Ya tienes cuenta? </Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                        <TouchableOpacity onPress={() => navigation.navigate('LoginScreen')}>
                             <Text style={styles.textLink}>Inicia sesión.</Text>
                         </TouchableOpacity>
                     </View>
