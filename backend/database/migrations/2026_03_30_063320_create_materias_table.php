@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('nombre');
             $table->string('profesor');
             $table->string('color', 7); // Hex color
-            $table->foreignId('usuario_id')->constrained('usuarios')->onDelete('cascade');
+            $table->foreignId('usuario_id')->constrained('usuarios');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

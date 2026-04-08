@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, ScrollView, Alert, FlatList, Modal, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, ScrollView, Alert, FlatList, Modal, ActivityIndicator } from 'react-native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import TareaController from '../controllers/TareaController';
 import MateriaController from '../controllers/MateriaController';
@@ -71,113 +71,114 @@ export default function CrearTareaScreen({ navigation }) {
     const materiaNombre = materias.find(m => m.id === materiaSeleccionada)?.nombre || 'Selecciona una materia';
 
     return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        <>
+            <SafeAreaView style={styles.container}>
+                <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Feather name="arrow-left" size={24} color="#333" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Nueva Tarea</Text>
-                <View style={{ width: 24 }} />
-            </View>
-
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
-                {/* Sección 1: Información */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Información de la tarea</Text>
-
-                    <Text style={styles.label}>Título *</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Ej: Resolver ejercicios de cálculo"
-                        value={titulo}
-                        onChangeText={setTitulo}
-                        editable={!cargando}
-                    />
-
-                    <Text style={styles.label}>Descripción</Text>
-                    <TextInput
-                        style={[styles.input, { height: 100, borderRadius: 15, paddingTop: 10 }]}
-                        placeholder="Describe los detalles de la tarea..."
-                        multiline
-                        textAlignVertical="top"
-                        value={descripcion}
-                        onChangeText={setDescripcion}
-                        editable={!cargando}
-                    />
-
-                    <Text style={styles.label}>Materia *</Text>
-                    {materiasCargando ? (
-                        <View style={[styles.pickerSimulado, { justifyContent: 'center' }]}>
-                            <ActivityIndicator color="#666" size="small" />
-                            <Text style={{ color: '#888', marginLeft: 10 }}>Cargando materias...</Text>
-                        </View>
-                    ) : (
-                        <TouchableOpacity
-                            style={styles.pickerSimulado}
-                            onPress={() => setMateriasModal(true)}
-                        >
-                            <Text style={{ color: '#333', fontSize: 14 }}>{materiaNombre}</Text>
-                            <Feather name="chevron-down" size={20} color="#888" />
-                        </TouchableOpacity>
-                    )}
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                        <Feather name="arrow-left" size={24} color="#333" />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Nueva Tarea</Text>
+                    <View style={{ width: 24 }} />
                 </View>
 
-                {/* Sección 2: Prioridad */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Prioridad</Text>
-                    <View style={styles.priorityContainer}>
-                        {prioridades.map((p) => (
+                <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                    {/* Sección 1: Información */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Información de la tarea</Text>
+
+                        <Text style={styles.label}>Título *</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Ej: Resolver ejercicios de cálculo"
+                            value={titulo}
+                            onChangeText={setTitulo}
+                            editable={!cargando}
+                        />
+
+                        <Text style={styles.label}>Descripción</Text>
+                        <TextInput
+                            style={[styles.input, { height: 100, borderRadius: 15, paddingTop: 10 }]}
+                            placeholder="Describe los detalles de la tarea..."
+                            multiline
+                            textAlignVertical="top"
+                            value={descripcion}
+                            onChangeText={setDescripcion}
+                            editable={!cargando}
+                        />
+
+                        <Text style={styles.label}>Materia *</Text>
+                        {materiasCargando ? (
+                            <View style={[styles.pickerSimulado, { justifyContent: 'center' }]}>
+                                <ActivityIndicator color="#666" size="small" />
+                                <Text style={{ color: '#888', marginLeft: 10 }}>Cargando materias...</Text>
+                            </View>
+                        ) : (
                             <TouchableOpacity
-                                key={p}
-                                style={[
-                                    styles.priorityButton,
-                                    prioridad === p && styles.priorityButtonActive,
-                                    prioridad === p && p === 'Alta' && { backgroundColor: '#FFCDD2', borderColor: '#EF5350' },
-                                    prioridad === p && p === 'Media' && { backgroundColor: '#FFF9C4', borderColor: '#FDD835' },
-                                    prioridad === p && p === 'Baja' && { backgroundColor: '#C8E6C9', borderColor: '#66BB6A' },
-                                ]}
-                                onPress={() => setPrioridad(p)}
+                                style={styles.pickerSimulado}
+                                onPress={() => setMateriasModal(true)}
                             >
-                                <Text style={[styles.priorityText, prioridad === p && styles.priorityTextActive]}>{p}</Text>
+                                <Text style={{ color: '#333', fontSize: 14 }}>{materiaNombre}</Text>
+                                <Feather name="chevron-down" size={20} color="#888" />
                             </TouchableOpacity>
-                        ))}
-                    </View>
-                </View>
-
-                {/* Sección 3: Fecha */}
-                <View style={styles.section}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-                        <Feather name="calendar" size={18} color="#333" style={{ marginRight: 8 }} />
-                        <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Fecha de entrega</Text>
+                        )}
                     </View>
 
-                    <Text style={styles.label}>Fecha (YYYY-MM-DD) *</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="2026-03-31"
-                        value={fecha}
-                        onChangeText={setFecha}
-                        editable={!cargando}
-                    />
-                </View>
+                    {/* Sección 2: Prioridad */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Prioridad</Text>
+                        <View style={styles.priorityContainer}>
+                            {prioridades.map((p) => (
+                                <TouchableOpacity
+                                    key={p}
+                                    style={[
+                                        styles.priorityButton,
+                                        prioridad === p && styles.priorityButtonActive,
+                                        prioridad === p && p === 'Alta' && { backgroundColor: '#FFCDD2', borderColor: '#EF5350' },
+                                        prioridad === p && p === 'Media' && { backgroundColor: '#FFF9C4', borderColor: '#FDD835' },
+                                        prioridad === p && p === 'Baja' && { backgroundColor: '#C8E6C9', borderColor: '#66BB6A' },
+                                    ]}
+                                    onPress={() => setPrioridad(p)}
+                                >
+                                    <Text style={[styles.priorityText, prioridad === p && styles.priorityTextActive]}>{p}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
 
-                <TouchableOpacity
-                    style={[styles.submitButton, cargando && styles.submitButtonDisabled]}
-                    onPress={handleCrearTarea}
-                    disabled={cargando}
-                >
-                    {cargando ? (
-                        <ActivityIndicator color="#fff" />
-                    ) : (
-                        <Text style={styles.submitButtonText}>Crear Tarea</Text>
-                    )}
-                </TouchableOpacity>
+                    {/* Sección 3: Fecha */}
+                    <View style={styles.section}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                            <Feather name="calendar" size={18} color="#333" style={{ marginRight: 8 }} />
+                            <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Fecha de entrega</Text>
+                        </View>
 
-                <Text style={styles.helpText}>* Campos obligatorios</Text>
-            </ScrollView>
+                        <Text style={styles.label}>Fecha (YYYY-MM-DD) *</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="2026-03-31"
+                            value={fecha}
+                            onChangeText={setFecha}
+                            editable={!cargando}
+                        />
+                    </View>
+
+                    <TouchableOpacity
+                        style={[styles.submitButton, cargando && styles.submitButtonDisabled]}
+                        onPress={handleCrearTarea}
+                        disabled={cargando}
+                    >
+                        {cargando ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <Text style={styles.submitButtonText}>Crear Tarea</Text>
+                        )}
+                    </TouchableOpacity>
+
+                    <Text style={styles.helpText}>* Campos obligatorios</Text>
+                </ScrollView>
+            </SafeAreaView>
 
             {/* Modal de materias */}
             <Modal
@@ -225,7 +226,7 @@ export default function CrearTareaScreen({ navigation }) {
                     </View>
                 </View>
             </Modal>
-        </SafeAreaView>
+        </>
     );
 }
 

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('correo')->unique();
             $table->string('password_hash');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

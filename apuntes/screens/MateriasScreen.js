@@ -90,7 +90,7 @@ export default function MateriasScreen({ navigation }) {
 
             <View style={styles.header}>
                 <View style={styles.headerTitles}>
-                    <Text style={styles.headerTitle}>Mis Materias</Text>
+                    <Text style={styles.headerTitle}>Gestión de Materias</Text>
                     <Text style={styles.headerSubtitle}>{materias.length} Materias</Text>
                 </View>
             </View>

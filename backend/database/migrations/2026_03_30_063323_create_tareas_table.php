@@ -18,9 +18,10 @@ return new class extends Migration
             $table->enum('prioridad', ['Alta', 'Media', 'Baja'])->default('Media');
             $table->date('fecha');
             $table->boolean('completada')->default(false);
-            $table->foreignId('usuario_id')->constrained('usuarios')->onDelete('cascade');
-            $table->foreignId('materia_id')->constrained('materias')->onDelete('cascade');
+            $table->foreignId('usuario_id')->constrained('usuarios');
+            $table->foreignId('materia_id')->constrained('materias');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
