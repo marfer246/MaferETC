@@ -7,11 +7,12 @@ export default function HomeScreen({ navigation }) {
     // Obtenemos al usuario logueado desde el contexto, pantalla principal.
     const { user } = useAuth();// busca al uruario y y la variable user tiene gusrdados los datos
 
+
     return (
         <ScrollView style={styles.container} bounces={false}>{/* estetica, no rebote */}
             <StatusBar barStyle="dark-content" backgroundColor="#90CAF9" />
        
-            {/* Cabecera Azul */}
+            {/* Cabecera Azul, evita que la app caiga,, comodin*/}
             <View style={styles.header}>
                 <Text style={styles.greetingTitle}>¡Hola, {user?.nombre || 'User'}!</Text>
                 <Text style={styles.greetingSub}>Tienes 3 tareas pendientes</Text>

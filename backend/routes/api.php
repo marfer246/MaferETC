@@ -10,7 +10,7 @@ Route::post('/registro', [AuthController::class, 'registro']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/recuperar-contrasena', [AuthController::class, 'resetPassword']);
 
-// Rutas protegidas (requieren token Sanctum)
+// Rutas protegidas (requieren token Sanctum) 
 Route::middleware('auth:sanctum')->group(function () {
     // Autenticación
     Route::post('/logout', [AuthController::class, 'logout']);

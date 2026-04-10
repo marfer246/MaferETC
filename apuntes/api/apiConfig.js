@@ -1,28 +1,27 @@
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios'; // Para hacer peticiones HTTP (comunicarse con servidores).
+import AsyncStorage from '@react-native-async-storage/async-storage'; // guardar datos que no se borran al cerrar la app
 
-// URL del API de Laravel (ajusta el puerto si es necesario)
-// const API_BASE_URL = 'http://10.124.69.181:8000/api';
-// const API_BASE_URL = 'http://192.168.1.75:8000/api';
+// URL del API de Laravel
 //const API_BASE_URL = 'http://192.168.100.24:8081/api';
 const API_BASE_URL = 'http://192.168.100.24:8000/api';
 
+// instancia, asistente
 export const apiClient = axios.create({
     baseURL: API_BASE_URL,
     headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', // mandar al json
     },
 });
 
-// Interceptor para agregar token de autenticación (React Native usa AsyncStorage)
+// Interceptor para agregar token de autenticación
 apiClient.interceptors.request.use(
     async (config) => {
-        try {
+        try { // llave de acceso
             const token = await AsyncStorage.getItem('authToken');
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
             }
-        } catch (error) {
+        } catch (error) { // para errores
             console.error('Error leyendo token de AsyncStorage', error);
         }
         return config;

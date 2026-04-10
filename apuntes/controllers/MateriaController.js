@@ -1,6 +1,7 @@
+// Controladores son los que hacen las acciones (como los verbos: listar, crear,
 import { apiClient } from '../api/apiConfig';
 
-class MateriaController {
+class MateriaController { // aqui esta el crud, le dice al servidor
     async listar() {
         try {
             const response = await apiClient.get('/materias');

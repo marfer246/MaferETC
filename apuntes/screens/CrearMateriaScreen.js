@@ -1,6 +1,8 @@
 import React, { useState } from 'react'; // para guardar datos que solo le importan a esta pantalla mientras el usuario escribe
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, ScrollView, Alert, ActivityIndicator } from 'react-native';
+// Importa los íconos de la librería de Expo
 import { Feather, Fontisto } from '@expo/vector-icons';
+// conecta la pantalla con la base de datos
 import MateriaController from '../controllers/MateriaController';
 
 const coloresDisponibles = [
@@ -14,18 +16,18 @@ const coloresDisponibles = [
 
 export default function CrearMateriaScreen({ navigation }) {
     const [nombre, setNombre] = useState('');
-    const [profesor, setProfesor] = useState('');
+    const [profesor, setProfesor] = useState(''); // guarda el dato
     const [colorSeleccionado, setColorSeleccionado] = useState(coloresDisponibles[0].hex);
-    const [cargando, setCargando] = useState(false);
-
+    const [cargando, setCargando] = useState(false);// // Bandera para saber si estamos guardando en la base de datos
+// guarda en la BD, toma app  y esperar 
     const handleCrearMateria = async () => {
         // Validaciones
-        if (!nombre.trim()) {
+        if (!nombre.trim()) {// quita los espacios en blanco
             Alert.alert('Error', 'Por favor ingresa el nombre de la materia.');
             return;
         }
 
-        if (!profesor.trim()) {
+        if (!profesor.trim()) { // verdad= vacio
             Alert.alert('Error', 'Por favor ingresa el nombre del profesor/a.');
             return;
         }
@@ -52,18 +54,21 @@ export default function CrearMateriaScreen({ navigation }) {
             Alert.alert('Error', resultado.message || 'Error al crear la materia.');
         }
     };
-
-    // EL ERROR ESTABA AQUÍ: Había una llave '}' extra antes del return. Ya fue eliminada.
+// lo que vemos en la pantalla
     return (
-        <SafeAreaView style={styles.container}>
+        // evita el coontenido se sobreponga
+        <SafeAreaView style={styles.container}> 
             <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
             
             <View style={styles.header}>
+
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Feather name="arrow-left" size={24} color="#333" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Crear Materia</Text>
+                
                 <View style={{ width: 24 }} />
+                
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -94,6 +99,7 @@ export default function CrearMateriaScreen({ navigation }) {
                     <Text style={styles.label}>Color representativo</Text>
                 
                     <View style={styles.colorGrid}>
+                        // --- map para el arreglo ---
                         {coloresDisponibles.map((color) => ( // coloresDisponibles y dibuja un botón por cada uno.
                             <TouchableOpacity 
                                 key={color.id} 
@@ -111,7 +117,7 @@ export default function CrearMateriaScreen({ navigation }) {
                         ))}
                     </View>
                 </View>
-
+/
                 <TouchableOpacity 
                     style={[styles.submitButton, cargando && styles.submitButtonDisabled]} 
                     onPress={handleCrearMateria}

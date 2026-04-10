@@ -1,9 +1,9 @@
 import { apiClient } from '../api/apiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+// administra la mamoria fisica del cel 
 class UserController {
     async register(nombre, correo, password) {
-        try {
+        try { 
             console.log('Register request', { nombre, correo });
             const response = await apiClient.post('/registro', {
                 nombre,
@@ -26,7 +26,7 @@ class UserController {
             };
         }
     }
-
+// si contrasenas correctas, regresa TOKEN
     async login(correo, password, recordar = false) {
         try {
             const response = await apiClient.post('/login', {
@@ -59,7 +59,9 @@ class UserController {
             };
         }
     }
-
+//
+// Le avisa al servidor que cierre la sesión, 
+// limpia el AsyncStorage
     async logout() {
         try {
             await apiClient.post('/logout');
@@ -77,15 +79,18 @@ class UserController {
             return { success: true };
         }
     }
+    
+    // Primero busca si hay un token guardado localmente. 
+    // Si lo hay, hace un validar con el servidor que ese token siga siendo válido y no haya expirado
 
     async getActiveSession() {
-        try {
+        try { // intento, peticion
             const token = await AsyncStorage.getItem('authToken');
             if (!token) {
                 return null;
             }
 
-            // Verificar sesión en el servidor
+            // Verificar que todo bien en el servidor
             const response = await apiClient.get('/user');
             return response.data.usuario;
         } catch (error) {
@@ -96,8 +101,8 @@ class UserController {
         }
     }
 
-    async resetPassword(correo, password) {
-        try {
+    async resetPassword(correo, password) { // olvide mi contrasena
+        try { // tomamos el correo y hacemos un pos a la ruta /recuperar-contrasena
             const response = await apiClient.post('/recuperar-contrasena', {
                 correo,
                 password,

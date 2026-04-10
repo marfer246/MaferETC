@@ -1,27 +1,29 @@
+//"Hooks" para manejar el estado y los ciclos
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import UserController from '../controllers/UserController';
+import UserController from '../controllers/UserController'; //permiso
 
 // Creamos el contexto
 const AuthContext = createContext();
-
+//children representa a todas las pantallas
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-//Mientras esto sea true pantalla de carga o un spinner en tu aplicación.
+    const [user, setUser] = useState(null); // memoria
+    const [isLoading, setIsLoading] = useState(true); // alguien logueado
+//Mientras esto sea true pantalla de carga o un spinner en la aplicación.
 // Al abrir, revisamos si el usuario ya había iniciado sesión antes
     useEffect(() => {
     const checkSession = async () => {
-      try {
+      try { // ver sesion abierta
         const sessionUser = await UserController.getActiveSession();
-            if (sessionUser) {
+            if (sessionUser) { // si habia alguien 
               setUser(sessionUser);
             } // Si encuentra un usuario, lo guarda en el estado.
           } catch (error) {
             console.error("Error verificando sesión:", error);
-          } finally {
+          } finally { // terminamos de revisar
             setIsLoading(false);
           }
         };
+
         checkSession();
     }, []);
 
@@ -47,10 +49,10 @@ export const AuthProvider = ({ children }) => {
         await UserController.logout();
         setUser(null); 
     };
-
+//  // envolverá tus rutas o pantallas
     return (
         <AuthContext.Provider value={{ user, isLoading, login, logout, register }}>
-        {children}
+        {children} 
         </AuthContext.Provider>
     );
 };
